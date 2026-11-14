@@ -1,0 +1,70 @@
+{# ── IO Offline: on-device AI study companion (QVAC SDK) ─────────────────────
+   Opt-in: renders only when QVAC_COMPANION_URL is set (see main.py
+   inject_qvac_companion + profspect_security.companion_url_origin).
+   Floating button stacked above the IO Assistant / translate FABs. Opens the
+   companion in a side panel iframe. On lesson pages the current lesson text is
+   handed to the companion with postMessage (exact target origin), so the
+   private, offline AI can tutor, quiz and summarise THIS lesson.
+   No learner data is sent: only the lesson title, course id and content. ── #}
+{% if qvac_companion_url %}
+{% set _iox_lesson = None %}
+{% if lesson is defined and lesson and content_blocks is defined %}
+    {% set _iox_lesson = {
+        'type': 'io-lesson',
+        'lessonId': lesson.id,
+        'courseId': course.id if course is defined and course else None,
+        'title': lesson.title,
+        'text': ((lesson.summary ~ '\n') if lesson.summary else '') ~ (content_blocks | map(attribute='body') | select | join('\n'))
+    } %}
+{% endif %}
+<div id="iox-wrap" style="position:fixed;bottom:188px;right:18px;z-index:8860;">
+    <button id="iox-trigger" type="button" title="IO Offline: private on-device AI tutor" aria-label="Open IO Offline"
+            style="width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+                   background:linear-gradient(135deg,#0E5C50 0%,#0A3828 100%);color:#fff;
+                   display:flex;align-items:center;justify-content:center;
+                   box-shadow:0 4px 16px rgba(10,56,40,.35);transition:transform .15s;">
+        <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="4.5" fill="#d4af37"/></svg>
+    </button>
+    <span style="position:absolute;top:-4px;right:-6px;background:#d4af37;color:#0A3828;font-size:9px;font-weight:800;
+                 border-radius:6px;padding:1px 4px;letter-spacing:.03em;pointer-events:none;">OFFLINE</span>
+</div>
+<div id="iox-panel" role="dialog" aria-label="IO Offline" aria-hidden="true"
+     style="position:fixed;top:0;right:0;height:100%;width:min(420px,100vw);z-index:9990;background:#0A3828;
+            box-shadow:-8px 0 32px rgba(0,0,0,.25);transform:translateX(105%);transition:transform .22s ease;
+            display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;color:#fff;font-size:.8rem;">
+        <strong style="letter-spacing:.02em;">IO Offline</strong>
+        <span style="opacity:.7;">· runs on your device, nothing sent to the cloud</span>
+        <button id="iox-close" type="button" aria-label="Close"
+                style="margin-left:auto;background:none;border:none;color:#fff;font-size:1.3rem;line-height:1;cursor:pointer;">&times;</button>
+    </div>
+    <iframe id="iox-frame" title="IO Offline" allow="microphone; autoplay"
+            style="flex:1;border:0;width:100%;background:#f4f6f5;"
+            data-src="{{ qvac_companion_url }}/?embed=1{% if _iox_lesson and _iox_lesson.courseId %}&course={{ _iox_lesson.courseId }}{% endif %}"></iframe>
+</div>
+<script>
+(function () {
+    var ORIGIN = {{ qvac_companion_origin | tojson }};
+    var LESSON = {{ _iox_lesson | tojson }};
+    var panel = document.getElementById('iox-panel');
+    var frame = document.getElementById('iox-frame');
+    var open = false;
+    function sendLesson() {
+        if (LESSON && frame.contentWindow) frame.contentWindow.postMessage(LESSON, ORIGIN);
+    }
+    function toggle(force) {
+        open = typeof force === 'boolean' ? force : !open;
+        if (open && !frame.src) frame.src = frame.dataset.src;   // lazy-load on first open
+        panel.style.transform = open ? 'translateX(0)' : 'translateX(105%)';
+        panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+    document.getElementById('iox-trigger').addEventListener('click', function () { toggle(); });
+    document.getElementById('iox-close').addEventListener('click', function () { toggle(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) toggle(false); });
+    frame.addEventListener('load', sendLesson);
+    window.addEventListener('message', function (e) {
+        if (e.origin === ORIGIN && e.data && e.data.type === 'io-offline-ready') sendLesson();
+    });
+})();
+</script>
+{% endif %}

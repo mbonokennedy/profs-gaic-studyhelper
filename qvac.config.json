@@ -1,0 +1,21 @@
+{
+  "serve": {
+    "models": {
+      "qwen3-600m-inst-q4": {
+        "model": "QWEN3_600M_INST_Q4",
+        "preload": false
+      },
+      "qwen3-600m-inst-q4-2": {
+        "model": "QWEN3_600M_INST_Q4",
+        "preload": false
+      },
+      "sd-v2-1-1b-q8-0": {
+        "model": "SD_V2_1_1B_Q8_0",
+        "preload": false,
+        "config": {
+          "prediction": "v"
+        }
+      }
+    }
+  }
+}

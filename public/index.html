@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>IO Offline · In-Odyssey</title>
+  <meta name="description" content="In-Odyssey Offline Study Companion: private, on-device AI tutoring. Powered by QVAC.">
+  <meta name="theme-color" content="#0E5C50">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="IO Offline">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-180.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ── Sidebar (collapsible) ── -->
+  <aside class="sidebar" id="sidebar" aria-label="Navigation">
+    <div class="brand">
+      <img src="brand/io-mark.png" alt="In-Odyssey" class="brand-mark">
+      <div class="brand-text" data-no-translate>
+        <div class="brand-name">In-Odyssey</div>
+        <div class="brand-sub">Offline Study Companion</div>
+      </div>
+    </div>
+
+    <p class="side-label">Academic</p>
+    <nav class="side-nav">
+      <button type="button" data-view="home" aria-current="page" title="Dashboard">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </button>
+    </nav>
+    <p class="side-label">Study tools</p>
+    <nav class="side-nav">
+      <button type="button" data-view="tutor" title="AI Tutor">
+        <svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M8.5 13h.01M15.5 13h.01M9.5 16h5"/></svg>
+        <span>AI Tutor</span>
+      </button>
+      <button type="button" data-view="quiz" title="Practice Quiz">
+        <svg viewBox="0 0 24 24"><path d="M9 4h6l1 2h3v14H5V6h3z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span>Practice Quiz</span>
+      </button>
+      <button type="button" data-view="summary" title="Summarise Lesson">
+        <svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+        <span>Summarise Lesson</span>
+      </button>
+    </nav>
+
+    <p class="side-label">Course</p>
+    <button type="button" class="course-rail" id="courseRail" title="Choose subject and lesson">
+      <svg viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>
+    </button>
+    <div class="side-fields">
+      <label class="field"><span>Subject</span><select id="course" data-no-translate></select></label>
+      <label class="field"><span>Lesson</span><select id="lesson"><option value="">Whole course</option></select></label>
+    </div>
+
+    <div class="side-foot">
+      <button class="status" id="status" type="button" title="Model status">
+        <span class="dot"></span><span class="status-text" id="statusText" data-no-translate>Starting…</span>
+      </button>
+      <div class="by" data-no-translate>
+        <span>by</span><img src="brand/profspect-white.png" alt="Profspect">
+      </div>
+      <div class="powered">Powered by QVAC · runs on this device</div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="shell">
+    <!-- ── Navbar ── -->
+    <header class="navbar">
+      <button class="nav-icon" id="sideToggle" type="button" aria-label="Toggle sidebar" title="Collapse or expand the menu">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="search" id="searchBox">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+        <input id="search" type="search" placeholder="Search lessons…" autocomplete="off" aria-label="Search lessons">
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
+      <div class="nav-right">
+        <button class="nav-icon search-toggle" id="searchToggle" type="button" aria-label="Search lessons">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>
+        </button>
+        <span class="chip offline"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>Offline · Private</span>
+        <button class="lang-btn" id="langBtn" type="button" title="Translate this page">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <span id="langLabel" data-no-translate>English</span>
+        </button>
+        <div class="user" id="userBox">
+          <button type="button" class="user-btn" id="userBtn" aria-haspopup="menu" aria-expanded="false">
+            <span class="user-text"><b id="userName" data-no-translate>…</b><span id="userRole"></span></span>
+            <span class="avatar" id="userAvatar" data-no-translate>IO</span>
+          </button>
+          <div class="user-menu" id="userMenu" role="menu" hidden>
+            <div class="um-head"><b id="umName" data-no-translate></b><span id="umEmail" data-no-translate></span></div>
+            <button type="button" role="menuitem" id="signOut"><svg viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="tr-bar" id="trBar" hidden>
+      <svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 9M13 21l4-9 4 9M14.5 18h5"/></svg>
+      <span id="trBarText" data-no-translate></span>
+      <button type="button" class="link" id="trBarOriginal" data-no-translate>Show original</button>
+    </div>
+
+    <main>
+      <div class="page-head">
+        <h1 id="viewTitle">Dashboard</h1>
+        <p id="viewSub">Your offline study space.</p>
+      </div>
+      <div class="io-banner" id="ioBanner" hidden>
+        <span class="pill">From IO</span><span>Studying: <b id="ioLessonTitle"></b></span>
+      </div>
+
+      <!-- HOME / DASHBOARD -->
+      <section class="view" id="view-home" data-active>
+        <div class="welcome">
+          <div>
+            <h2 id="greeting">Hi, welcome back!</h2>
+            <p class="muted" id="today"></p>
+          </div>
+          <div class="badges">
+            <div class="badge purple"><span>Mode</span><b>Offline</b></div>
+            <div class="badge gold"><span>Cloud calls</span><b>0</b></div>
+            <div class="badge teal"><span>Languages</span><b id="stLangs">9</b></div>
+          </div>
+        </div>
+
+        <div class="quick">
+          <button type="button" class="qa" data-go="tutor"><span class="qi teal"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M8.5 13h.01M15.5 13h.01M9.5 16h5"/></svg></span>Ask IO Tutor</button>
+          <button type="button" class="qa" data-go="quiz"><span class="qi purple"><svg viewBox="0 0 24 24"><path d="M9 4h6l1 2h3v14H5V6h3z"/><path d="M9 12l2 2 4-4"/></svg></span>Practice Quiz</button>
+          <button type="button" class="qa" data-go="summary"><span class="qi gold"><svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>Summarise Lesson</button>
+          <button type="button" class="qa" data-go="translate"><span class="qi blue"><svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 9M13 21l4-9 4 9M14.5 18h5"/></svg></span>Translate Page</button>
+          <button type="button" class="qa" data-go="voice"><span class="qi coral"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>Ask by Voice</button>
+          <button type="button" class="qa" data-go="practice"><span class="qi green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg></span>Quick Question</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat gold"><span class="lbl">Subjects offline</span><b id="stCourses">–</b><small>Synced from IO</small><i></i></div>
+          <div class="stat teal"><span class="lbl">Lessons ready</span><b id="stLessons">–</b><small>Searchable on-device</small><i></i></div>
+          <div class="stat blue"><span class="lbl">AI speed</span><b id="stSpeed" data-no-translate>–</b><small id="stModel" data-no-translate>Local model</small><i></i></div>
+          <div class="stat purple"><span class="lbl">Data sent to cloud</span><b>0 bytes</b><small>Private by design</small><i></i></div>
+        </div>
+
+        <div class="home-grid">
+          <div class="card subjects">
+            <div class="card-head"><h3>Your subjects</h3><span class="muted">Tap one to start studying</span></div>
+            <div class="subject-list" id="subjectList"></div>
+          </div>
+          <div class="card insight-card">
+            <div class="ins-head"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M8.5 13h.01M15.5 13h.01M9.5 16h5"/></svg>IO STUDY TIP<span class="live">● on-device</span></div>
+            <p>Pick a lesson, then ask the tutor to coach you through a problem. It gives hints first and offers answers you can tap, so you learn the method, not just the answer.</p>
+            <p>Switch the whole app into <b>isiZulu, isiXhosa, Afrikaans, Sesotho or Setswana</b> with the translate button. It works with no internet.</p>
+            <div class="ins-foot"><span>IO Offline · works with no internet</span><button type="button" class="link" id="startLesson">Start studying →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TUTOR -->
+      <section class="view" id="view-tutor">
+        <div class="chat" id="chat">
+          <div class="empty card" id="chatEmpty">
+            <div class="empty-icon"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M8.5 13h.01M15.5 13h.01M9.5 16h5"/></svg></div>
+            <h2>Hi! What are we studying today?</h2>
+            <p>Answers come from your IO course material. Nothing is sent to the cloud.</p>
+            <div class="chips" id="starterChips"></div>
+          </div>
+        </div>
+        <form class="composer" id="composer" autocomplete="off">
+          <div class="mode" role="radiogroup" aria-label="Tutor mode">
+            <button type="button" data-mode="coach" aria-pressed="true" title="Hints first, like a tutor">Coach me</button>
+            <button type="button" data-mode="explain" aria-pressed="false" title="Direct explanation">Explain</button>
+          </div>
+          <div class="input-row">
+            <button type="button" class="icon-btn mic" id="micBtn" title="Speak your question" aria-label="Speak your question">
+              <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+            </button>
+            <textarea id="question" rows="1" placeholder="Ask a question…" enterkeyhint="send"></textarea>
+            <button type="submit" class="icon-btn send" id="sendBtn" aria-label="Send">
+              <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- QUIZ -->
+      <section class="view" id="view-quiz">
+        <div class="card toolbar">
+          <div>
+            <h2>Practice quiz</h2>
+            <p class="muted" id="quizFor">Multiple-choice questions from the selected lesson.</p>
+          </div>
+          <div class="actions">
+            <select id="quizCount" aria-label="Number of questions"><option value="3">3 questions</option><option value="4" selected>4 questions</option><option value="5">5 questions</option></select>
+            <button class="btn primary" id="quizBtn" type="button">Generate quiz</button>
+          </div>
+        </div>
+        <div id="quizOut" class="quiz-grid"></div>
+      </section>
+
+      <!-- SUMMARY -->
+      <section class="view" id="view-summary">
+        <div class="card toolbar">
+          <div>
+            <h2>Revision summary</h2>
+            <p class="muted" id="summaryFor">Key points from the selected lesson.</p>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="summaryBtn" type="button">Summarise</button>
+          </div>
+        </div>
+        <article class="card prose insight" id="summaryOut" hidden></article>
+        <div class="actions end" id="summaryActions" hidden>
+          <button class="btn" type="button" id="summarySpeak">Read aloud</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ── Page translation (like IO's translate button) ── -->
+  <button class="fab-translate" id="trFab" type="button" title="Translate this page" aria-label="Translate this page" aria-expanded="false">
+    <svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 9M13 21l4-9 4 9M14.5 18h5"/></svg>
+  </button>
+  <div class="tr-pop" id="trPop" role="dialog" aria-label="Translate this page" hidden data-no-translate>
+    <div class="tr-head">
+      <svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 9M13 21l4-9 4 9M14.5 18h5"/></svg>
+      <strong>Translate this page</strong><span class="tr-off">offline</span>
+      <button type="button" class="tr-x" id="trClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="tr-body">
+      <button type="button" class="lang-opt" data-lang="en"><span>English</span><small>Original</small></button>
+      <p class="tr-group">South African languages</p>
+      <div class="lang-grid" id="langSa"></div>
+      <p class="tr-group">Other languages</p>
+      <div class="lang-grid" id="langOther"></div>
+      <p class="tr-note">Translated on this device with QVAC. Some pages take a moment the first time.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" data-no-translate></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

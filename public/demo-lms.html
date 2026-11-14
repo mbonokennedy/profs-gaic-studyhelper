@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Demo LMS · IO Offline</title>
+  <link rel="icon" href="icon-180.png" type="image/png">
+  <style>
+    :root { --ink:#1b2430; --muted:#5f6b7a; --line:#e3e7ec; --bg:#f6f7f9; --brand:#3b4cca; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink); background:var(--bg); }
+    header { display:flex; align-items:center; gap:12px; padding:12px 20px; background:#fff; border-bottom:1px solid var(--line); }
+    header b { font-size:1.05rem; } header .crumb { color:var(--muted); font-size:.9rem; }
+    .note { margin-left:auto; font-size:.75rem; background:#fff7db; border:1px solid #f0dc93; color:#6b5400; padding:4px 10px; border-radius:999px; }
+    .wrap { display:grid; grid-template-columns:260px 1fr; gap:20px; max-width:1100px; margin:20px auto; padding:0 16px; }
+    nav { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; align-self:start; }
+    nav h3 { font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:4px 8px 8px; }
+    nav a { display:block; padding:8px 10px; border-radius:8px; color:inherit; text-decoration:none; font-size:.92rem; }
+    nav a.active { background:#eef0ff; color:var(--brand); font-weight:600; }
+    article { background:#fff; border:1px solid var(--line); border-radius:12px; padding:28px 32px; line-height:1.75; }
+    article h1 { margin:0 0 4px; font-size:1.6rem; } .meta { color:var(--muted); font-size:.85rem; margin-bottom:18px; }
+    article p { margin:0 0 14px; }
+    .hint { margin-top:24px; padding:12px 14px; border-radius:10px; background:#eef8f5; border:1px solid #cfe9e2; font-size:.9rem; }
+    @media (max-width:760px) { .wrap { grid-template-columns:1fr; } nav { display:none; } article { padding:20px; } .note { display:none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <b>Demo LMS</b><span class="crumb" id="crumb">Course</span>
+    <span class="note">Stand-in for any LMS (e.g. IO): this page is not part of the AI app</span>
+  </header>
+  <div class="wrap">
+    <nav><h3 id="courseName">Lessons</h3><div id="lessonList"></div></nav>
+    <article>
+      <h1 id="title">Loading…</h1>
+      <div class="meta" id="meta"></div>
+      <div id="body"></div>
+      <div class="hint">Open <strong>IO Offline</strong> (bottom-right). It receives this lesson and can tutor, quiz, summarise, translate and talk, all on this device.</div>
+    </article>
+  </div>
+
+  <!-- The whole integration: one script tag + the current lesson. -->
+  <script src="embed.js" defer></script>
+  <script type="module">
+    const params = new URLSearchParams(location.search);
+    const courses = await fetch('/api/courses').then((r) => r.json());
+    const course = courses.find((c) => c.id === (params.get('course') || 'sample-grade-10-maths')) || courses[0];
+    const lessonId = params.get('lesson') || course.lessons[0].id;
+    const lesson = await fetch(`/api/lesson?courseId=${encodeURIComponent(course.id)}&lessonId=${encodeURIComponent(lessonId)}`).then((r) => r.json());
+    document.getElementById('courseName').textContent = course.name;
+    document.getElementById('crumb').textContent = `${course.name} › ${lesson.title}`;
+    document.getElementById('title').textContent = lesson.title;
+    document.getElementById('meta').textContent = `${course.name} · ${lesson.module || 'Lesson'}`;
+    document.getElementById('body').innerHTML = lesson.text.split(/\n+/).map((p) => `<p>${p.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])}</p>`).join('');
+    document.getElementById('lessonList').innerHTML = course.lessons
+      .map((l) => `<a href="?course=${encodeURIComponent(course.id)}&lesson=${encodeURIComponent(l.id)}" class="${l.id === lesson.id ? 'active' : ''}">${l.title}</a>`)
+      .join('');
+    // What a real LMS template would render server-side:
+    window.IO_OFFLINE_LESSON = { title: lesson.title, text: lesson.text, lessonId: lesson.id, courseId: course.id };
+    window.IOOffline?.refreshLesson();
+  </script>
+</body>
+</html>

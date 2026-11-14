@@ -1,0 +1,36 @@
+{
+  "name": "io-offline",
+  "version": "0.1.0",
+  "description": "IO Offline: a private, on-device AI study companion for the IO LMS, built on the QVAC SDK. Tutor chat (RAG), quiz & summary generation, voice in/out and translation, with no internet required.",
+  "main": "server.mjs",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/download-models.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "sync-io": "node scripts/sync-io.mjs",
+    "start": "node server.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "chat": "node examples/chat.cjs"
+  },
+  "keywords": [
+    "qvac",
+    "offline-ai",
+    "local-llm",
+    "rag",
+    "lms",
+    "education",
+    "whisper",
+    "tts",
+    "translation"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": "^22.21.0 || >=24.9.0"
+  },
+  "dependencies": {
+    "@qvac/sdk": "^0.23.0",
+    "express": "^4.21.2",
+    "qrcode-terminal": "^0.12.0",
+    "selfsigned": "^2.4.1"
+  }
+}

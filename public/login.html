@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sign in · In-Odyssey Offline</title>
+  <meta name="theme-color" content="#0E5C50">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="IO Offline">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-180.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <main class="split">
+    <section class="hero" aria-label="In-Odyssey">
+      <svg class="rings" viewBox="0 0 600 600" aria-hidden="true"><circle cx="300" cy="300" r="120"/><circle cx="300" cy="300" r="200"/><circle cx="300" cy="300" r="280"/></svg>
+      <img src="brand/io-logo.png" alt="In-Odyssey" class="hero-logo">
+      <div class="hero-copy">
+        <p class="eyebrow">Offline Study Companion</p>
+        <h1>From Potential<br><span>to Opportunity.</span></h1>
+        <p class="lede">Your AI tutor that works with no internet. It tutors, quizzes and summarises your IO lessons, and listens, speaks and translates, all on this device.</p>
+        <ul class="perks">
+          <li><span class="tick">✓</span>No data bundle needed</li>
+          <li><span class="tick">✓</span>Nothing leaves your device</li>
+          <li><span class="tick">✓</span>Works during load-shedding on a laptop battery</li>
+        </ul>
+      </div>
+      <div class="hero-foot">
+        <span>by</span><img src="brand/profspect-white.png" alt="Profspect"><span class="sep"></span><span>Powered by QVAC</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <form class="card" id="form" novalidate>
+        <img src="brand/io-mark.png" alt="" class="card-mark">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in to continue your learning journey.</p>
+
+        <label class="fld">
+          <span>Email address</span>
+          <input id="email" type="email" autocomplete="username" inputmode="email" placeholder="you@school.co.za" required>
+        </label>
+        <label class="fld">
+          <span>Password</span>
+          <span class="pw">
+            <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+            <button type="button" id="show" class="show" aria-label="Show password">Show</button>
+          </span>
+        </label>
+        <p class="err" id="err" role="alert" hidden></p>
+        <button class="btn" id="submit" type="submit">Sign in</button>
+
+        <div class="demo" id="demo" hidden>
+          <span>Demo day?</span>
+          <button type="button" id="useDemo">Use the demo learner account</button>
+        </div>
+
+        <div class="offline"><span class="dot"></span>Offline mode · accounts are stored on this device</div>
+      </form>
+    </section>
+  </main>
+  <script src="login.js" type="module"></script>
+</body>
+</html>
